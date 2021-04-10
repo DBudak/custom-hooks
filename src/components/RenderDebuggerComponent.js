@@ -6,34 +6,46 @@ const useRenderDebugger = (componentName, props, ...states) => {
   const _logger = (componentName, props, prevProps) => {
     console.groupCollapsed(`%cComponent ${componentName} was rerendered.`, 'color:#2196f3');
     console.groupCollapsed('%cOld Props:', 'color: #9e9e9e');
-    console.table(prevProps);
+    console.info(prevProps);
     console.groupEnd();
     console.groupCollapsed('%cNew Props:', 'color: #009688');
-    console.table(props);
+    console.info(props);
     console.groupEnd();
     console.groupEnd();
   }
 
   const _isObject = o => typeof o === 'object' && o !== null
-  const _flattenO = o => {
-    for(let key in prevProps) {
-      if(_isObject(prevProps[key])) {
-        
+  const _isEmptyObject = o => _isObject(o) && Object.keys(o).length === 0;
+  const _getObjectPropByPath = (o, path) => path.split('.').reduce((acc, k) => {
+    return acc ? (acc[k] || undefined) : acc
+  }, o);
 
-      }
-    }
+  const _buildChangesReport = (a, b, key = "") => {
+    //handle these edge cases
+    if(a && !b) return 'changed, new object is falsy';
+    if(!a && b) return 'changed, from falsy to truthy';
+    return Object.keys(a).reduce((acc, curKey) => {
+      const path = key + (key ? '.' + curKey : curKey),
+        value = a[curKey] === _getObjectPropByPath(b, path) ? 'unchanged' : 'changed';
+        acc[curKey] = _isObject(a[curKey]) ? _buildChangesReport(a[curKey], b, path) : value;
+      return acc; 
+    }, {})
   };
 
+  
+
   useEffect(() => {
-    //_propChecker();
-    _logger(componentName, props, prevProps);
+    const report = _buildChangesReport(prevProps.current, props);
+    console.log('?', report);
+    _logger(componentName, props, prevProps.current);
+    console.log(process.env.NODE_ENV);
     prevProps.current = props;
   })
 }
 
-const ChildComponent = ({number}) => {
+const ChildComponent = ({number, nestedObject}) => {
 
-  useRenderDebugger('ChildComponent', {number})
+  useRenderDebugger('ChildComponent', {number, nestedObject})
 
   return (
     <div>
@@ -45,11 +57,13 @@ const ChildComponent = ({number}) => {
 const RenderDebuggerComponent = () => {
 
   const [number, setNumber] = useState(Math.random());
+  const [nestedObject, setNestedObject] = useState({foo: {bar: {fox: 'cat'}}});
   const interval = useRef();
 
   useEffect(() => {
     interval.current = setInterval(() => {
       setNumber(Math.random());
+      setNestedObject({foo: {bar: {fox: 'dog'}}})
     },10000);
     return () => {
       clearInterval(interval.current);
@@ -62,6 +76,7 @@ const RenderDebuggerComponent = () => {
       Parent Component; state: {number}
       <ChildComponent 
         number={number}
+        nestedObject={nestedObject}
       />
     </div>
   )  
