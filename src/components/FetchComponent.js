@@ -1,13 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import useRenderDebugger from "../hooks/renderDebugger";
 
 
 const _getData = url => fetch(url)
-  .then(res => res.json())
   .then(res => {
-    console.log(res)
-    if(!res.ok) 
-      throw new Error([res.status, res.json()]);
-    return [res.status, res.json()]
+    if(!res.ok) throw res;
+    return res;
   });
 
 const fetchMap = {
@@ -16,39 +14,65 @@ const fetchMap = {
 
 const useFetch = (url, type='GET', body) => {
 
+  /*
   const [res, setRes] = useState();
   const [error, setError] = useState();
   const [status, setStatus] = useState();
   const [statusCode, setStatusCode] = useState();
+  */
+  const res = useRef();
+  const error = useRef();
+  const status = useRef();
+  const statusCode = useRef();
+
+  const _resetToPreFetchState = _ => {
+    res.current = undefined;
+    error.current = undefined;
+    status.current = 'Fetching';
+    statusCode.current = undefined
+  }
+
+  const _setSuccessState = (json, code) => {
+    res.current = json;
+    error.current = undefined;
+    status.current = 'Success';
+    statusCode.current = code
+  }
+
+  const _setFailedState = (json, code) => {
+    res.current = undefined;
+    error.current = json;
+    status.current = 'Failed';
+    statusCode.current = code
+  }
 
   useEffect(() => {
-    if((url && type==='GET') || 
-      (url && type && body)) {
-        setStatus('Fetching');
-        fetchMap[type](url)
-          .then( ([code, json]) => {
-            console.log(code, json)
-            setRes(json);
-            setStatus('Success');
-            setStatusCode(code);
-            setError();
-          })
-          .catch( ([code, error]) => {
-            setRes();
-            setStatus('Failed');
-            setStatusCode(code);
-            setError(error);
-          })
+    //_resetToPreFetchState();
+    //need to change this to one major state, maybe usereducer
+    if(url && type==='GET'){
+      fetchMap[type](url)
+      .then(async res => {
+        const json = await res.json();
+        _setSuccessState(json, res.status);
+      })
+      .catch(async err => {
+        const json = await err.json();
+        _setFailedState(json, err.status);
+      })
+    }else if(url && type && body) {
       }
+      console.log([res.current, error.current, status.current, statusCode.current])
   },[url, type, body]);
 
-  return [res, error, status, statusCode];
+  return [res.current, error.current, status.current, statusCode.current];
 };
 
 const FetchComponent = () => {
 
   const [getResponse, getError, getStatus, getStatusCode] = useFetch('https://jsonplaceholder.typicode.com/posts/1')
   const [getFailedResponse, getFailedError, getFailedStatus, getFailedStatusCode] = useFetch('https://jsonplaceholder.typicode.com/123123/')
+
+  console.log('I rerendered')
  return (
    <div>
      <div>Fetch component example</div>
@@ -69,7 +93,7 @@ const FetchComponent = () => {
       <div><strong>Error</strong></div>
       <div>{JSON.stringify(getFailedError)}</div>
       <div><strong>Status</strong></div>
-      <div>{getFailedStatus} {getFailedStatusCode}</div>
+      <div>{JSON.stringify(getFailedStatus)} {getFailedStatusCode}</div>
      </div>
       
    </div>
