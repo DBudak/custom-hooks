@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import NavigationComponent from './components/NavigationComponent';
 import RenderDebuggerComponent from './components/RenderDebuggerComponent';
+import FetchComponent from './components/FetchComponent';
 
 function App() {
   return (
@@ -15,6 +16,9 @@ function App() {
       <Switch>
         <Route path='/debugger'>
           <RenderDebuggerComponent />
+        </Route>
+        <Route path='/fetch'>
+          <FetchComponent />
         </Route>
         <Route path='/'>
           <HomeComponent />

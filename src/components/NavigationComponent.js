@@ -6,6 +6,7 @@ const NavigationComponent = () => {
     <nav>
       <NavLink exact to='/'>Home</NavLink>
       <NavLink to='/debugger'>Render Debugger Hook</NavLink>
+      <NavLink to='/fetch'>Fetch Hook</NavLink>
     </nav>
   )
 };
