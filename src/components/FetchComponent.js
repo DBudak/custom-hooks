@@ -75,6 +75,7 @@ const useFetch = (url, method='GET', body, headers) => {
 };
 
 const FetchComponent = () => {
+  console.log('I rerendered');
 
   const [getResponse, getError, getStatus, getStatusCode] = useFetch('https://jsonplaceholder.typicode.com/posts/1');
   const [getFailedResponse, getFailedError, getFailedStatus, getFailedStatusCode] = useFetch('https://jsonplaceholder.typicode.com/123123/');
@@ -84,8 +85,42 @@ const FetchComponent = () => {
     'POST', 
     JSON.stringify({title: 'foo', body: 'bar', userId: 533})
   );
-  console.log('I rerendered');
+  const [postFailedResponse, postFailedError, postFailedStatus, postFailedStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/idonotexist', 
+    'POST', 
+    JSON.stringify({title: 'foo', body: 'bar', userId: 533})
+  );
 
+  const [putResponse, putError, putStatus, putStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/posts/1', 
+    'PUT', 
+    JSON.stringify({id: 1, title: 'foo', body: 'bar', userId: 1})
+  );
+  const [putFailedResponse, putFailedError, putFailedStatus, putFailedStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/posts/idonotexist', 
+    'PUT', 
+    JSON.stringify({id: 1, title: 'foo', body: 'bar', userId: 1})
+  );
+
+  const [patchResponse, patchError, patchStatus, patchStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/posts/1', 
+    'PATCH', 
+    JSON.stringify({title: 'foo2'})
+  );
+  const [patchFailedResponse, patchFailedError, patchFailedStatus, patchFailedStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/dfsdfsd', 
+    'PATCH', 
+    JSON.stringify({id: 1, title: 'foo', body: 'bar', userId: 1})
+  );
+  const [deleteResponse, deleteError, deleteStatus, deleteStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/posts/1', 
+    'DELETE', 
+    JSON.stringify({title: 'foo2'})
+  );
+  const [deleteFailedResponse, deleteFailedError, deleteFailedStatus, deleteFailedStatusCode] = useFetch(
+    'https://jsonplaceholder.typicode.com/dfsdfsd', 
+    'DELETE' 
+  );
   return (
     <div>
       <div>Fetch component example</div>
@@ -116,6 +151,69 @@ const FetchComponent = () => {
         <div>{JSON.stringify(postError)}</div>
         <div><strong>Status</strong></div>
         <div>{postStatus} {postStatusCode}</div>
+      </div>
+      <div>
+        <h3>POST (Fail):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(postFailedResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(postFailedError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{postFailedStatus} {postFailedStatusCode}</div>
+      </div>
+      <div>
+        <h3>PUT (Success):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(putResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(putError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{putStatus} {putStatusCode}</div>
+      </div>
+      <div>
+        <h3>PUT (Fail):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(putFailedResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(putFailedError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{putFailedStatus} {putFailedStatusCode}</div>
+      </div>
+      <div>
+        <h3>PATCH (Success):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(patchResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(patchError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{patchStatus} {patchStatusCode}</div>
+      </div>
+      <div>
+        <h3>PATCH (Fail):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(patchFailedResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(patchFailedError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{patchFailedStatus} {patchFailedStatusCode}</div>
+      </div>
+      <div>
+        <h3>DELETE (Success):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(deleteResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(deleteError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{deleteStatus} {deleteStatusCode}</div>
+      </div>
+      <div>
+        <h3>DELETE (Fail):</h3>
+        <div><strong>Response</strong></div>
+        <div>{JSON.stringify(patchFailedResponse)}</div>
+        <div><strong>Error</strong></div>
+        <div>{JSON.stringify(patchFailedError)}</div>
+        <div><strong>Status</strong></div>
+        <div>{deleteFailedStatus} {deleteFailedStatusCode}</div>
       </div>
       
     </div>
