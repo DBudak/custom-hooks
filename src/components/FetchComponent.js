@@ -1,32 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import useRenderDebugger from '../hooks/renderDebugger';
 
-
-const _getData = url => fetch(url)
-  .then(res => {
-    if(!res.ok) throw res;
-    return res;
-  });
-
-const _postData = (url,body, header) => fetch(new Request(
-  url,
-  {
-    method: 'POST',
-    body: body,
-    header: header
-  }
-))
-  .then(res => {
-    if(!res.ok) throw res;
-    return res;
-  });
-
-const fetchMap = {
-  'GET': _getData,
-  'POST': _postData
+const _getOptions = (method, body, headers,mode,cache,credentials,redirect,referrerPolicy) => {
+  let options = {};
+  if(method) options.method = method;
+  if(body) options.body = body;
+  if(headers) options.headers = headers;
+  if(mode) options.mode = mode;
+  if(cache) options.cache = cache;
+  if(credentials) options.credentials = credentials;
+  if(redirect) options.redirect = redirect;
+  if(referrerPolicy)  options.referrerPolicy = referrerPolicy;
+  return options;
 };
 
-const useFetch = (url, type='GET', body, header) => {
+const _doFetch = (
+  url, 
+  method, 
+  body, 
+  headers,
+  mode,
+  cache,
+  credentials,
+  redirect,
+  referrerPolicy) => fetch(url, _getOptions(method, body, headers, mode, cache, credentials, redirect, referrerPolicy))
+  .then(res => {
+    if(!res.ok) throw res;
+    return res;
+  });
+
+
+const useFetch = (url, method='GET', body, headers) => {
   const [state, setState] = useState({
     res: undefined,
     error: undefined,
@@ -53,19 +57,9 @@ const useFetch = (url, type='GET', body, header) => {
   };
 
   useEffect(() => {
-    //POST happens infinite amount of time, need to abstract fetch ,method and remove fetchMap
-    if(url && type==='GET'){
-      fetchMap[type](url)
-        .then(async res => {
-          const json = await res.json();
-          _setSuccessState(json, res.status);
-        })
-        .catch(async err => {
-          const json = await err.json();
-          _setFailedState(json, err.status);
-        });
-    } else if(url && type && body) {
-      fetchMap[type](url, body, header)
+    //fixed infinite loop call was caused by body object being recreated on every rerender
+    if(url){
+      _doFetch(url, method, body, headers)
         .then(async res => {
           const json = await res.json();
           _setSuccessState(json, res.status);
@@ -75,7 +69,7 @@ const useFetch = (url, type='GET', body, header) => {
           _setFailedState(json, err.status);
         });
     }
-  },[url, type, body, header]);
+  }, [url, method, body, headers]);
 
   return [state.res, state.error, state.status, state.statusCode];
 };
@@ -88,8 +82,9 @@ const FetchComponent = () => {
   const [postResponse, postError, postStatus, postStatusCode] = useFetch(
     'https://jsonplaceholder.typicode.com/posts', 
     'POST', 
-    {title: 'foo', body: 'bar', userId: 1}
+    JSON.stringify({title: 'foo', body: 'bar', userId: 533})
   );
+  console.log('I rerendered');
 
   return (
     <div>
