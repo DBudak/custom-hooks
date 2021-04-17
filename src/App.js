@@ -4,7 +4,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route
-} from "react-router-dom";
+} from 'react-router-dom';
 import NavigationComponent from './components/NavigationComponent';
 import RenderDebuggerComponent from './components/RenderDebuggerComponent';
 import FetchComponent from './components/FetchComponent';

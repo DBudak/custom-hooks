@@ -4,14 +4,14 @@ import useRenderDebugger from '../hooks/renderDebugger';
 
 const ChildComponent = ({number, nestedObject}) => {
 
-  useRenderDebugger('ChildComponent', {number, nestedObject})
+  useRenderDebugger('ChildComponent', {number, nestedObject});
 
   return (
     <div>
       Child Component; props: {number}
     </div>
-  )
-}
+  );
+};
 
 const RenderDebuggerComponent = () => {
 
@@ -24,12 +24,12 @@ const RenderDebuggerComponent = () => {
   useEffect(() => {
     interval.current = setInterval(() => {
       setNumber(Math.random());
-      setNestedObject({foo: {bar: {fox: 'dog'}}})
+      setNestedObject({foo: {bar: {fox: 'dog'}}});
     },10000);
     return () => {
       clearInterval(interval.current);
-    }
-  })
+    };
+  });
 
   return (
     <div>
@@ -40,7 +40,7 @@ const RenderDebuggerComponent = () => {
         nestedObject={nestedObject}
       />
     </div>
-  )  
+  );  
 };
 
 export default RenderDebuggerComponent;
